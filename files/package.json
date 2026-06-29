@@ -1,0 +1,14 @@
+{
+  "name": "intel-echo",
+  "version": "0.1.0",
+  "description": "A compiler for reasoning — audits an AI conversation for where the reasoning exceeded its mandate.",
+  "license": "MIT",
+  "main": "core/witness.js",
+  "scripts": {
+    "test": "node selftest.js",
+    "audit": "node run.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0"
+  }
+}
