@@ -1,4 +1,5 @@
 # Intel Echo
+<img width="1024" height="1536" alt="product1" src="https://github.com/user-attachments/assets/4a855c5a-0b9b-4e4f-b4b7-7a5a758cf7e2" />
 
 **A CLI that catches where your AI exceeded its mandate.**
 
@@ -22,6 +23,9 @@ Wrote examples/chat1.report.json / .report.md / .labels.csv
 ```
 
 This is real output from auditing the founding conversation. The AI that produced those spans is the same model running the audit. That's the product — and it's the first thing to be honest about.
+
+<img width="1024" height="1536" alt="ChatGPT Image Jul 4, 2026, 03_53_32 PM" src="https://github.com/user-attachments/assets/264ce86a-f7f7-4e09-836c-1d8d3625f44d" />
+
 
 ---
 
