@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Old scattered source folders (superseded by core/ and src/)
+files/
+facefile2/
+facefiles/
+zip/
+
+# Reference material — not part of the product
+OmniRoute-main/
+OmniRoute-main.zip
+
+# IDE / tooling
+.obsidian/
+.claude/
+*.html
+*.png
+
+# npm pack artifact
+*.tgz
+
+# Raw model output (save locally, not in repo)
+examples/*.raw.txt

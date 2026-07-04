@@ -1,0 +1,32 @@
+{
+  "name": "intel-echo",
+  "version": "0.1.0",
+  "description": "A compiler for reasoning -- audits an AI conversation for where the reasoning exceeded its mandate.",
+  "license": "MIT",
+  "main": "core/witness.js",
+  "bin": {
+    "intel-echo": "cli.js"
+  },
+  "files": [
+    "cli.js",
+    "lib.js",
+    "render.js",
+    "core/",
+    "src/",
+    "examples/chat1.md",
+    "examples/intel_echo_dev_001.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node selftest.js",
+    "serve": "node cli.js serve",
+    "serve:http": "node cli.js serve --http"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.0.0"
+  }
+}
