@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intel Echo GTM — The Messaging Loop That Measures Itself · An Amoris Product</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #08080f;
+  --surface: #0f0f1c;
+  --panel:   #13132a;
+  --border:  #1e1e38;
+  --border2: #2a2a50;
+  --text:    #e2e8f0;
+  --muted:   #6b7280;
+  --dim:     #374151;
+  --indigo:  #818cf8;
+  --indigo2: #6366f1;
+  --amber:   #fbbf24;
+  --amber2:  #f59e0b;
+  --teal:    #5eead4;
+  --teal2:   #2dd4bf;
+  --red:     #f87171;
+  --green:   #6ee7b7;
+  --radius:  10px;
+  --mono:    'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+a { color: inherit; text-decoration: none; }
+.mono { font-family: var(--mono); }
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,8,15,.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0 24px;
+}
+.nav-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: flex; align-items: center; gap: 0; height: 52px;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-logo { font-family: var(--mono); font-size: .75rem; font-weight: 700; letter-spacing: .18em; color: var(--text); text-transform: uppercase; }
+.nav-logo span { color: var(--amber); }
+.nav-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 16px; }
+.nav-product { font-size: .78rem; font-weight: 600; color: var(--amber); }
+.nav-sub { font-size: .7rem; color: var(--muted); margin-left: 8px; }
+.nav-links { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.nav-core {
+  font-size: .7rem; font-weight: 600; color: var(--indigo);
+  border: 1px solid rgba(129,140,248,.25); border-radius: 6px; padding: 4px 10px;
+  transition: background .15s;
+}
+.nav-core:hover { background: rgba(129,140,248,.07); }
+.nav-gh {
+  font-size: .7rem; font-family: var(--mono); color: var(--muted);
+  border: 1px solid var(--border2); border-radius: 6px; padding: 4px 10px;
+}
+.nav-gh:hover { color: var(--text); border-color: var(--border); }
+
+/* ─── SWITCHER ─── */
+.switcher { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; }
+.switcher-inner { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sw-label { font-size: .68rem; font-family: var(--mono); color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+.sw-pills { display: flex; gap: 6px; }
+.sw-pill { font-size: .7rem; font-weight: 600; padding: 4px 12px; border-radius: 99px; border: 1px solid var(--border2); color: var(--muted); transition: all .15s; }
+.sw-pill.on { background: var(--panel); border-color: var(--amber2); color: var(--amber); }
+.sw-pill.core { color: var(--indigo); border-color: rgba(129,140,248,.25); }
+.sw-pill.core:hover { background: rgba(129,140,248,.07); }
+.sw-desc { margin-left: auto; font-size: .68rem; color: var(--dim); font-family: var(--mono); }
+
+/* ─── WRAP ─── */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ─── HERO ─── */
+.hero { padding: 72px 0 56px; }
+.hero-eyebrow { font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--amber); }
+h1 { font-size: clamp(30px, 5vw, 54px); font-weight: 800; line-height: 1.06; letter-spacing: -.02em; max-width: 18ch; margin-bottom: 20px; }
+h1 .q { color: var(--teal2); }
+h1 .a { color: var(--amber); }
+.hero-sub { color: var(--muted); font-size: 17px; max-width: 60ch; line-height: 1.65; margin-bottom: 32px; }
+.hero-sub b { color: var(--text); font-weight: 600; }
+.hero-ctas { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--amber2); color: #08080f; font-family: var(--mono); font-size: .78rem; font-weight: 700; padding: 10px 18px; border-radius: var(--radius); letter-spacing: .04em; transition: background .15s; }
+.btn-primary:hover { background: var(--amber); }
+.btn-secondary { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border2); color: var(--muted); font-size: .78rem; padding: 10px 16px; border-radius: var(--radius); transition: all .15s; }
+.btn-secondary:hover { border-color: var(--border); color: var(--text); }
+
+/* ─── LOOP PANEL ─── */
+.loop-panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px 16px; margin-bottom: 8px; }
+.legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 0 4px 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.legend span { display: flex; align-items: center; gap: 7px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+svg { width: 100%; height: auto; display: block; }
+.st-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #6b7280; letter-spacing: .06em; }
+.st-name  { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; fill: #e2e8f0; }
+.station rect { fill: #13132a; stroke: #2a2a50; stroke-width: 1.2; rx: 9; cursor: pointer; transition: stroke .2s; }
+.station:hover rect { stroke: #6b7280; }
+.station.active rect { stroke: #5eead4; stroke-width: 1.8; }
+.station.gatey rect { stroke: #e2e8f0; stroke-dasharray: 5 4; }
+.pipe { fill: none; stroke: #1e1e38; stroke-width: 2; }
+.flow { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 6 140; animation: flow 5.5s linear infinite; }
+.flow.fa { stroke: #fbbf24; }
+.flow.ft { stroke: #5eead4; }
+.flow.fn { stroke: #4b5563; }
+@keyframes flow { to { stroke-dashoffset: -146; } }
+@media (prefers-reduced-motion: reduce) { .flow { animation: none; stroke-dasharray: none; opacity: .5; } }
+.detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin: 12px 0 4px; min-height: 78px; }
+.detail .mono { font-size: 11px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
+.detail h3 { font-size: 15px; margin: 4px 0 5px; }
+.detail p { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+.detail .ta { color: var(--amber); }
+.detail .tt { color: var(--teal2); }
+
+/* ─── SECTIONS ─── */
+.section { padding: 56px 0; border-top: 1px solid var(--border); }
+.section-label { font-family: var(--mono); font-size: .62rem; letter-spacing: .16em; color: var(--amber); text-transform: uppercase; margin-bottom: 8px; }
+h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
+.section-lede { color: var(--muted); font-size: 15.5px; max-width: 62ch; margin-bottom: 32px; line-height: 1.65; }
+.section-lede b { color: var(--text); font-weight: 600; }
+
+/* ─── TWO AXES ─── */
+.axes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.axis { border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); padding: 20px; }
+.axis h3 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.axis ul { list-style: none; }
+.axis li { font-family: var(--mono); font-size: 12.5px; color: var(--muted); padding: 7px 0; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; }
+.axis li:last-child { border: none; }
+.axis li b { color: var(--text); font-weight: 600; }
+.axis.qt { border-top: 3px solid var(--amber); }
+.axis.ql { border-top: 3px solid var(--teal2); }
+.axis-insight { grid-column: 1/-1; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); padding: 14px; font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.65; }
+.axis-insight b { color: var(--text); }
+
+/* ─── CREW ─── */
+.roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.agent { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.agent .role { font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.agent h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.agent p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.agent .tag { margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--teal2); }
+.agent.human { border-style: dashed; border-color: rgba(226,232,240,.2); }
+.agent.human .tag { color: var(--amber); }
+
+/* ─── ROADMAP ─── */
+.road { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.v { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.v .vtag { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.v h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.v p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.v.now { border-color: var(--teal2); }
+.v.now .vtag { color: var(--teal2); }
+
+/* ─── HONEST ─── */
+.honest { border-left: 3px solid var(--amber); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; padding: 18px 22px; max-width: 680px; margin: 40px 0 48px; }
+.honest-label { font-family: var(--mono); font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; }
+.honest p { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+.honest b { color: var(--text); font-weight: 600; }
+
+/* ─── ALSO FROM AMORIS crosslink ─── */
+.also-banner { background: linear-gradient(135deg, rgba(129,140,248,.05) 0%, var(--surface) 100%); border: 1px solid rgba(129,140,248,.15); border-radius: var(--radius); padding: 20px 24px; margin: 32px 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.also-label { font-family: var(--mono); font-size: .6rem; color: var(--indigo); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; }
+.also-name { font-size: 15px; font-weight: 700; }
+.also-desc { font-size: 12.5px; color: var(--muted); }
+.also-cta { margin-left: auto; font-size: .72rem; font-weight: 700; color: var(--indigo); border: 1px solid rgba(129,140,248,.3); border-radius: 8px; padding: 8px 16px; white-space: nowrap; transition: background .15s; }
+.also-cta:hover { background: rgba(129,140,248,.08); }
+
+/* ─── FOOTER CTA ─── */
+.footer-cta { background: var(--surface); border-top: 1px solid var(--border); padding: 64px 24px; text-align: center; }
+.footer-cta h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+.footer-cta p { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+.install-block { display: inline-flex; align-items: center; gap: 12px; background: var(--panel); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 18px; margin-bottom: 12px; font-family: var(--mono); font-size: .85rem; color: var(--amber); }
+.copy-btn { font-size: .6rem; color: var(--muted); border: 1px solid var(--border); background: var(--surface); border-radius: 4px; padding: 3px 8px; cursor: pointer; font-family: var(--mono); transition: all .15s; }
+.copy-btn:hover { color: var(--text); border-color: var(--border2); }
+.footer-links { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+/* ─── FOOTER ─── */
+footer { background: var(--bg); border-top: 1px solid var(--border); padding: 20px 24px; }
+.footer-inner { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.footer-brand { font-family: var(--mono); font-size: .68rem; color: var(--dim); letter-spacing: .1em; }
+.footer-brand span { color: var(--muted); }
+.footer-nav { display: flex; gap: 16px; }
+.footer-nav a { font-family: var(--mono); font-size: .65rem; color: var(--dim); }
+.footer-nav a:hover { color: var(--muted); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 720px) { .axes { grid-template-columns: 1fr; } h1 { max-width: none; } }
+
+/* ─── FADE IN ─── */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="nav-logo"><span>Amoris</span></div>
+      <div class="nav-sep"></div>
+      <div class="nav-product">Intel Echo GTM</div>
+      <div class="nav-sub mono">Messaging Loop</div>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-core">← Intelligence Layer</a>
+      <a href="https://github.com/praveenshahi/IntelEcho" target="_blank" class="nav-gh mono">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PRODUCT SWITCHER -->
+<div class="switcher">
+  <div class="switcher-inner">
+    <div class="sw-label">Intel Echo products</div>
+    <div class="sw-pills">
+      <a href="index.html" class="sw-pill core">Intelligence Layer</a>
+      <div class="sw-pill on">GTM Messaging Loop</div>
+    </div>
+    <div class="sw-desc mono">amoris.in · AI products</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-eyebrow mono">Intel Echo GTM · Sales Messaging Observability</div>
+    <h1>Your pitch, scored on <span class="q">quality</span> and <span class="a">outcomes</span> — separately.</h1>
+    <p class="hero-sub">
+      Every AI sales tool optimizes <b>volume.</b> Intel Echo GTM is an instrument: it generates pitches from your buyers' <b>real objections,</b> scores their framing with a <b>calibrated judge,</b> logs what actually happened on a separate axis, and loops the learning back — so your messaging measurably compresses the sales cycle.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn-primary mono" href="#get-started">Get early access</a>
+      <a class="btn-secondary" href="https://github.com/praveenshahi/IntelEcho" target="_blank">View on GitHub</a>
+    </div>
+
+    <!-- THE LOOP DIAGRAM -->
+    <div class="loop-panel fade-in">
+      <div class="legend">
+        <span><i class="dot" style="background:#4b5563"></i>pitch</span>
+        <span><i class="dot" style="background:var(--amber)"></i>quant · what happened</span>
+        <span><i class="dot" style="background:var(--teal2)"></i>qual · how good the framing was</span>
+        <span><i class="dot" style="background:rgba(226,232,240,.7);outline:1px dashed rgba(226,232,240,.3)"></i>human gate — nothing sends itself</span>
+      </div>
+
+      <svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Intel Echo GTM loop: corpus to writer to human gate to outcomes and judge, rejoining at synthesis">
+        <!-- pipes -->
+        <path class="pipe" d="M168 190 H 250"/>
+        <path class="flow fn" d="M168 190 H 250"/>
+        <path class="pipe" d="M418 190 H 480"/>
+        <path class="flow fn" d="M418 190 H 480" style="animation-delay:.9s"/>
+        <!-- split after gate -->
+        <path class="pipe" d="M648 168 C 700 120, 720 120, 760 118"/>
+        <path class="flow fa" d="M648 168 C 700 120, 720 120, 760 118" style="animation-delay:1.9s"/>
+        <path class="pipe" d="M648 212 C 700 260, 720 260, 760 262"/>
+        <path class="flow ft" d="M648 212 C 700 260, 720 260, 760 262" style="animation-delay:1.9s"/>
+        <!-- rejoin -->
+        <path class="pipe" d="M905 140 C 950 160, 950 220, 905 240"/>
+        <path class="flow fa" d="M905 140 C 950 160, 950 220, 905 240" style="animation-delay:3s"/>
+        <!-- synthesis back to corpus -->
+        <path class="pipe" d="M832 300 C 700 372, 260 372, 105 232"/>
+        <path class="flow fn" d="M832 300 C 700 372, 260 372, 105 232" style="animation-delay:4s"/>
+
+        <!-- stations -->
+        <g class="station" data-k="corpus" tabindex="0">
+          <rect x="30" y="152" width="138" height="76" rx="9"/>
+          <text class="st-label" x="46" y="178">01 · CORPUS</text>
+          <text class="st-name" x="46" y="202">Objections</text>
+          <text class="st-label" x="46" y="219">real buyer words</text>
+        </g>
+        <g class="station" data-k="writer" tabindex="0">
+          <rect x="250" y="152" width="168" height="76" rx="9"/>
+          <text class="st-label" x="266" y="178">02 · GENERATE</text>
+          <text class="st-name" x="266" y="202">Writer</text>
+          <text class="st-label" x="266" y="219">SPIN · inertia-first</text>
+        </g>
+        <g class="station gatey" data-k="gate" tabindex="0">
+          <rect x="480" y="152" width="168" height="76" rx="9"/>
+          <text class="st-label" x="496" y="178">03 · HUMAN GATE</text>
+          <text class="st-name" x="496" y="202">You approve</text>
+          <text class="st-label" x="496" y="219">then you send it</text>
+        </g>
+        <g class="station" data-k="outcome" tabindex="0">
+          <rect x="760" y="80" width="145" height="76" rx="9"/>
+          <text class="st-label" x="776" y="106" fill="#fbbf24">04a · QUANT</text>
+          <text class="st-name" x="776" y="130">Outcomes</text>
+          <text class="st-label" x="776" y="147">reply · meeting · days</text>
+        </g>
+        <g class="station" data-k="judge" tabindex="0">
+          <rect x="760" y="224" width="145" height="76" rx="9"/>
+          <text class="st-label" x="776" y="250" fill="#5eead4">04b · QUAL</text>
+          <text class="st-name" x="776" y="274">Judge</text>
+          <text class="st-label" x="776" y="291">MEDDIC rubric 0–5</text>
+        </g>
+      </svg>
+
+      <div class="detail" id="detail">
+        <div class="mono">Click any station to explore</div>
+        <h3>The loop is the product.</h3>
+        <p>A pitch travels once around; the system gets smarter every lap. Note the split after the gate — <span class="ta">what happened</span> and <span class="tt">how good the framing was</span> are never mixed until synthesis.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TWO AXES -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">The measurement architecture</div>
+    <h2>Two axes. Never averaged.</h2>
+    <p class="section-lede">Mixing them creates the classic lie: "it closed, so the pitch must've been great." Intel Echo GTM keeps them apart, then reads them side by side — <b>that comparison is where the insight lives.</b></p>
+    <div class="axes">
+      <div class="axis qt">
+        <h3><i class="dot" style="background:var(--amber)"></i>Quant — what happened</h3>
+        <ul>
+          <li><span>reply_rate</span><b>0.31</b></li>
+          <li><span>meeting_rate</span><b>0.14</b></li>
+          <li><span>no_decision_rate</span><b>0.22</b></li>
+          <li><span>avg_cycle_days</span><b>34 → 26</b></li>
+        </ul>
+      </div>
+      <div class="axis ql">
+        <h3><i class="dot" style="background:var(--teal2)"></i>Qual — how good the framing was</h3>
+        <ul>
+          <li><span>implication (cost of inaction)</span><b>4.1 / 5</b></li>
+          <li><span>objection pre-emption</span><b>3.8 / 5</b></li>
+          <li><span>champion-forwardable</span><b>3.5 / 5</b></li>
+          <li><span>judge calibration</span><b>≥0.8 ✓</b></li>
+        </ul>
+      </div>
+      <div class="axis-insight mono">
+        high qual + low quant → <b>targeting or timing problem, not the message</b> &nbsp;·&nbsp; low qual + high quant → <b>noise, don't promote it yet</b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">Why this exists</div>
+    <h2>AI sales tools optimize volume. This one measures you.</h2>
+    <p class="section-lede">The question every AI GTM tool ignores: <b>was the pitch actually good, or did it just get lucky?</b> You can't improve what you can't measure — and you can't measure what you don't separate.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:720px;">
+      <div style="border-left:2px solid var(--amber);padding:14px 18px;background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;">
+        <div style="font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">The volume trap</div>
+        <h3 style="font-size:14.5px;font-weight:700;margin-bottom:4px;">More sends ≠ better messaging</h3>
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.6;">Every AI tool gives you more pitches. None of them tell you <b style="color:var(--text)">which framing pattern</b> drove the reply. Without separating quality from outcome, you're flying blind — at scale.</p>
+      </div>
+      <div style="border-left:2px solid var(--teal2);padding:14px 18px;background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;">
+        <div style="font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">The calibration problem</div>
+        <h3 style="font-size:14.5px;font-weight:700;margin-bottom:4px;">An uncalibrated judge is just expensive noise</h3>
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.6;">Intel Echo GTM's Judge scores framing <b style="color:var(--text)">only after it agrees with your hand-labels.</b> A model that hasn't been anchored to your standards produces scores you can't trust — and won't use.</p>
+      </div>
+      <div style="border-left:2px solid var(--border2);padding:14px 18px;background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;">
+        <div style="font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">The human gate</div>
+        <h3 style="font-size:14.5px;font-weight:700;margin-bottom:4px;">Nothing in Intel Echo sends itself — by design</h3>
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.6;">Deliverability, brand, and compliance stay with a human. This is a deliberate constraint, not a limitation. The instrument measures; you decide.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- THE CREW -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">The crew</div>
+    <h2>Six workers. One shared database. One human gate.</h2>
+    <p class="section-lede">Each step is a worker with a job, a memory, and a set of tools. One of them is deliberately human — and that one holds the send button.</p>
+    <div class="roster">
+      <div class="agent">
+        <div class="role">Signal</div>
+        <h3>Scout</h3>
+        <p>Gathers prospect context and the buyer signal that justifies the touch. Refuses to draft if no signal exists.</p>
+        <div class="tag">▣ enrichment · signals</div>
+      </div>
+      <div class="agent">
+        <div class="role">Generation</div>
+        <h3>Writer</h3>
+        <p>Drafts the pitch from real objections. SPIN-structured, inertia-first. Refuses an empty corpus; never invents proof.</p>
+        <div class="tag">▣ SPIN prompt · corpus</div>
+      </div>
+      <div class="agent human">
+        <div class="role">The gate</div>
+        <h3>You</h3>
+        <p>Review, approve, send. Nothing in Intel Echo GTM sends itself — by design, not by limitation. Judgment stays human.</p>
+        <div class="tag">▣ judgment only</div>
+      </div>
+      <div class="agent">
+        <div class="role">Qual axis</div>
+        <h3>Judge</h3>
+        <p>Scores framing 0–5 on six MEDDIC dimensions. Calibrated against your hand-labels first. Trusted only after it agrees with you.</p>
+        <div class="tag">▣ rubric v1.0 · pinned model</div>
+      </div>
+      <div class="agent">
+        <div class="role">Synthesis</div>
+        <h3>Analyst</h3>
+        <p>Reads quant and qual side by side. Enforces the small-N guard — no fake percentages until your dataset warrants them.</p>
+        <div class="tag">▣ two views · SQL</div>
+      </div>
+      <div class="agent">
+        <div class="role">Memory</div>
+        <h3>Librarian</h3>
+        <p>Promotes value props that work, retires ones that don't, logs new objections. The corpus gets sharper every cycle.</p>
+        <div class="tag">▣ corpus write access</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROADMAP -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">Roadmap</div>
+    <h2>Where it's going</h2>
+    <div class="road">
+      <div class="v now">
+        <div class="vtag">V1 · SHIPPING NOW</div>
+        <h3>The manual loop</h3>
+        <p>CLI-driven. You run each step. Its only job: produce one honest, documented cycle-time result you can trust.</p>
+      </div>
+      <div class="v">
+        <div class="vtag">V2</div>
+        <h3>Orchestrated crew</h3>
+        <p>The six agents run in sequence over the same database. Human gate stays at send. Everything else is automated.</p>
+      </div>
+      <div class="v">
+        <div class="vtag">V3</div>
+        <h3>Self-improving prompts</h3>
+        <p>The calibrated judge becomes the training signal — the prompts themselves learn from outcomes. The loop closes fully.</p>
+      </div>
+    </div>
+
+    <div class="honest" style="margin-top:32px;">
+      <div class="honest-label mono">What we won't claim</div>
+      <p>Statistical significance at small volume, autonomy over your outbox, or results before the loop has produced them. <b>The numbers shown are illustrative of the readout format</b> — your loop generates your numbers. That honesty is the point of building an instrument, not a black box.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CROSSLINK TO CORE -->
+<div class="wrap fade-in">
+  <div class="also-banner">
+    <div>
+      <div class="also-label mono">Also from Amoris · Intel Echo</div>
+      <div class="also-name">Intel Echo Intelligence Layer — Reasoning Observability</div>
+      <div class="also-desc">Audit any AI conversation for mandate compliance. Catches goal drift, authority overreach, context contamination, and confidence inflation — with verbatim evidence, not opinions.</div>
+    </div>
+    <a href="index.html" class="also-cta">See Intelligence Layer →</a>
+  </div>
+</div>
+
+<!-- FOOTER CTA -->
+<div class="footer-cta" id="get-started">
+  <h2>Start measuring your messaging</h2>
+  <p>One loop. Two axes. The insight is in the comparison.</p>
+  <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
+    <div class="install-block">
+      <code>npm install -g intel-echo</code>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('npm install -g intel-echo');this.textContent='copied';setTimeout(()=>this.textContent='copy',1500)">copy</button>
+    </div>
+  </div>
+  <br><br>
+  <div class="footer-links">
+    <a class="btn-primary" href="https://github.com/praveenshahi/IntelEcho" target="_blank">★ Star on GitHub</a>
+    <a href="index.html" class="btn-secondary" style="border-color:rgba(129,140,248,.25);color:var(--indigo);">← Intelligence Layer</a>
+    <a href="https://amoris.in" target="_blank" class="btn-secondary">amoris.in</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand mono">AMORIS · <span>Intel Echo GTM · Messaging Loop · v1</span></div>
+    <div class="footer-nav">
+      <a href="index.html">Intelligence Layer</a>
+      <a href="https://github.com/praveenshahi/IntelEcho" target="_blank">GitHub</a>
+      <a href="https://amoris.in" target="_blank">amoris.in</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Fade-in on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Loop station interactivity
+const D = {
+  corpus: {
+    k: '01 · Corpus',
+    h: 'Real objections, mapped and armed.',
+    p: 'Every objection from your actual buyers — mapped to the MEDDIC gap it exposes, tagged by root cause (inertia first), paired with a value prop, a proof point, and a line your champion can forward upward.'
+  },
+  writer: {
+    k: '02 · Writer',
+    h: 'SPIN-structured, inertia-first.',
+    p: 'Generates one coherent argument per prospect: makes the cost of NOT changing vivid, pre-empts the single most likely objection, and self-checks against the same six dimensions the Judge will score. Fails its own check? It revises before you ever see it.'
+  },
+  gate: {
+    k: '03 · Human Gate',
+    h: 'Deliberate, not a gap.',
+    p: 'Drafts save unapproved. You review, approve, and send through your own channel. Deliverability, brand, and compliance stay with a human — Intel Echo GTM measures; it never impersonates.'
+  },
+  outcome: {
+    k: '04a · Outcomes (Quant)',
+    h: 'What actually happened.',
+    p: 'Reply, meeting, stage advance, cycle days, no-decision. Pure record — no opinions, no judge scores allowed in this table. The quant axis is sacred: it only contains facts.'
+  },
+  judge: {
+    k: '04b · Judge (Qual)',
+    h: 'A calibrated instrument, not a cheerleader.',
+    p: 'Scores each pitch 0–5 on implication, metric, champion-forwardability, pre-emption, decision fit, and economic-buyer framing — with evidence per score. Trusted only after it agrees with your hand-labels on a calibration set.'
+  },
+};
+const det = document.getElementById('detail');
+document.querySelectorAll('.station').forEach(s => {
+  const go = () => {
+    const d = D[s.dataset.k];
+    if (!d) return;
+    document.querySelectorAll('.station').forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    det.innerHTML = `<div class="mono">${d.k}</div><h3>${d.h}</h3><p>${d.p}</p>`;
+  };
+  s.addEventListener('click', go);
+  s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+});
+</script>
+</body>
+</html>

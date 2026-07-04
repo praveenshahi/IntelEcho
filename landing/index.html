@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intel Echo — Reasoning Observability · An Amoris Product</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #08080f;
+  --surface:  #0f0f1c;
+  --panel:    #13132a;
+  --border:   #1e1e38;
+  --border2:  #2a2a50;
+  --text:     #e2e8f0;
+  --muted:    #6b7280;
+  --dim:      #374151;
+  --indigo:   #818cf8;
+  --indigo2:  #6366f1;
+  --indigo3:  #4f46e5;
+  --red:      #f87171;
+  --amber:    #fbbf24;
+  --green:    #6ee7b7;
+  --teal:     #5eead4;
+  --radius:   10px;
+  --mono:     'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+a { color: inherit; text-decoration: none; }
+.mono { font-family: var(--mono); }
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,8,15,.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+.nav-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: flex; align-items: center; gap: 0; height: 52px;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-logo {
+  font-family: var(--mono); font-size: .75rem; font-weight: 700;
+  letter-spacing: .18em; color: var(--text); text-transform: uppercase;
+}
+.nav-logo span { color: var(--indigo); }
+.nav-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 16px; }
+.nav-product { font-size: .78rem; font-weight: 600; color: var(--indigo); }
+.nav-sub { font-size: .7rem; color: var(--muted); margin-left: 8px; }
+.nav-links { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.nav-link {
+  font-size: .72rem; color: var(--muted); padding: 5px 10px;
+  border-radius: 6px; transition: color .15s, background .15s;
+}
+.nav-link:hover { color: var(--text); background: var(--panel); }
+.nav-link.active { color: var(--indigo); }
+.nav-gtm {
+  font-size: .7rem; font-weight: 600; color: var(--amber);
+  border: 1px solid rgba(251,191,36,.25); border-radius: 6px; padding: 4px 10px;
+  transition: background .15s;
+}
+.nav-gtm:hover { background: rgba(251,191,36,.07); }
+.nav-gh {
+  font-size: .7rem; font-family: var(--mono); color: var(--muted);
+  border: 1px solid var(--border2); border-radius: 6px; padding: 4px 10px;
+}
+.nav-gh:hover { color: var(--text); border-color: var(--border); }
+
+/* ─── WRAP ─── */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ─── PRODUCT SWITCHER BANNER ─── */
+.switcher {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+}
+.switcher-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.sw-label { font-size: .68rem; font-family: var(--mono); color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+.sw-pills { display: flex; gap: 6px; }
+.sw-pill {
+  font-size: .7rem; font-weight: 600; padding: 4px 12px; border-radius: 99px;
+  border: 1px solid var(--border2); color: var(--muted); transition: all .15s;
+}
+.sw-pill.on { background: var(--panel); border-color: var(--indigo2); color: var(--indigo); }
+.sw-pill.gtm { color: var(--amber); border-color: rgba(251,191,36,.25); }
+.sw-pill.gtm:hover { background: rgba(251,191,36,.07); }
+.sw-desc { margin-left: auto; font-size: .68rem; color: var(--dim); font-family: var(--mono); }
+
+/* ─── HERO ─── */
+.hero { padding: 72px 0 56px; }
+.hero-eyebrow {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .18em;
+  color: var(--indigo); text-transform: uppercase; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--indigo); }
+h1 {
+  font-size: clamp(32px, 5vw, 56px); font-weight: 800; line-height: 1.06;
+  letter-spacing: -.02em; max-width: 16ch; margin-bottom: 20px;
+}
+h1 em { font-style: normal; color: var(--indigo); }
+.hero-sub {
+  color: var(--muted); font-size: 17px; max-width: 58ch;
+  line-height: 1.65; margin-bottom: 32px;
+}
+.hero-sub b { color: var(--text); font-weight: 600; }
+.hero-ctas { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--indigo3); color: #fff; font-family: var(--mono);
+  font-size: .78rem; font-weight: 700; padding: 10px 18px;
+  border-radius: var(--radius); letter-spacing: .04em; transition: background .15s;
+}
+.btn-primary:hover { background: var(--indigo2); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border2); color: var(--muted); font-size: .78rem;
+  padding: 10px 16px; border-radius: var(--radius); transition: all .15s;
+}
+.btn-secondary:hover { border-color: var(--border); color: var(--text); }
+
+/* Finding card — hero teaser */
+.finding-card {
+  background: var(--panel); border: 1px solid var(--border2);
+  border-left: 3px solid var(--red); border-radius: var(--radius);
+  padding: 16px 18px; max-width: 620px;
+}
+.fc-meta {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.fc-badge {
+  font-family: var(--mono); font-size: .6rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px; letter-spacing: .06em;
+}
+.fc-badge.dp2 { background: rgba(248,113,113,.12); color: var(--red); border: 1px solid rgba(248,113,113,.25); }
+.fc-badge.conf { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+.fc-turn { font-family: var(--mono); font-size: .62rem; color: var(--dim); margin-left: auto; }
+.fc-span {
+  font-family: var(--mono); font-size: .8rem; color: var(--text);
+  background: rgba(248,113,113,.06); border: 1px solid rgba(248,113,113,.15);
+  border-radius: 4px; padding: 6px 10px; margin-bottom: 10px; display: block;
+}
+.fc-mandate { font-size: .72rem; color: var(--muted); }
+.fc-mandate b { color: #93c5fd; font-weight: 500; }
+.fc-departure { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+.fc-departure em { color: var(--text); font-style: normal; }
+.fc-footer { margin-top: 10px; font-family: var(--mono); font-size: .6rem; color: var(--dim); display: flex; gap: 12px; }
+.fc-footer .ok { color: var(--green); }
+
+/* ─── SECTIONS ─── */
+.section { padding: 56px 0; border-top: 1px solid var(--border); }
+.section-label {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .16em;
+  color: var(--indigo); text-transform: uppercase; margin-bottom: 8px;
+}
+h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
+.section-lede { color: var(--muted); font-size: 15.5px; max-width: 62ch; margin-bottom: 32px; line-height: 1.65; }
+.section-lede b { color: var(--text); font-weight: 600; }
+
+/* ─── PROBLEM ─── */
+.problem-callouts { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+.callout {
+  border-left: 2px solid var(--border2); padding: 14px 18px;
+  background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0;
+  transition: border-color .2s;
+}
+.callout:hover { border-color: var(--indigo2); }
+.callout-label {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.callout h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
+.callout p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.callout p b { color: var(--text); font-weight: 600; }
+
+/* ─── HOW IT WORKS ─── */
+.pipeline {
+  display: flex; align-items: flex-start; gap: 0;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 24px; margin-bottom: 24px;
+  overflow-x: auto;
+}
+.pipe-step { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+.pipe-node {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 14px 18px; min-width: 160px;
+  text-align: center;
+}
+.pipe-node.highlight { border-color: var(--indigo2); }
+.pipe-num { font-family: var(--mono); font-size: .6rem; color: var(--indigo); letter-spacing: .12em; margin-bottom: 4px; }
+.pipe-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.pipe-note { font-family: var(--mono); font-size: .6rem; color: var(--muted); }
+.pipe-free { color: var(--green); font-size: .58rem; font-family: var(--mono); margin-top: 4px; }
+.pipe-arrow { color: var(--dim); font-size: 18px; padding: 0 12px; margin-top: -8px; }
+.pipe-outputs { display: flex; gap: 10px; flex-wrap: wrap; }
+.output-file {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 180px;
+}
+.output-file .filename { font-family: var(--mono); font-size: .72rem; color: var(--indigo); margin-bottom: 4px; }
+.output-file p { font-size: 12.5px; color: var(--muted); }
+
+/* ─── PRIMITIVES ─── */
+.primitives-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.primitive-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; transition: border-color .2s;
+}
+.primitive-card:hover { border-color: var(--border2); }
+.prim-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.prim-id {
+  font-family: var(--mono); font-size: .6rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px; letter-spacing: .08em;
+}
+.dp1 .prim-id  { background: rgba(110,231,183,.1); color: var(--green);  border: 1px solid rgba(110,231,183,.2); }
+.dp2 .prim-id  { background: rgba(248,113,113,.1); color: var(--red);    border: 1px solid rgba(248,113,113,.2); }
+.dp3 .prim-id  { background: rgba(147,197,253,.1); color: #93c5fd;       border: 1px solid rgba(147,197,253,.2); }
+.dp4 .prim-id  { background: rgba(251,191,36,.1);  color: var(--amber);  border: 1px solid rgba(251,191,36,.2);  }
+.prim-name { font-size: 14px; font-weight: 700; }
+.prim-def { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.prim-example {
+  font-family: var(--mono); font-size: .68rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 10px; color: var(--text);
+  line-height: 1.5;
+}
+.prim-example .ex-label { color: var(--dim); font-size: .58rem; margin-bottom: 3px; display: block; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ─── INTEGRATIONS ─── */
+.integrations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.integ-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+}
+.integ-icon { font-size: 20px; margin-bottom: 8px; }
+.integ-name { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+.integ-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+.integ-cmd {
+  font-family: var(--mono); font-size: .65rem; color: var(--indigo);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 4px 8px; display: inline-block;
+}
+
+/* ─── DATASET ─── */
+.dataset-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.labels-demo {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.labels-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: .68rem;
+}
+.labels-row:last-child { border-bottom: none; }
+.lr-dp { min-width: 60px; }
+.lr-span { flex: 1; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lr-verdict { font-weight: 700; font-size: .62rem; padding: 2px 8px; border-radius: 99px; }
+.keep { background: rgba(110,231,183,.1); color: var(--green); border: 1px solid rgba(110,231,183,.2); }
+.kill { background: rgba(248,113,113,.1); color: var(--red);   border: 1px solid rgba(248,113,113,.2); }
+.pending { background: var(--surface); color: var(--dim); border: 1px solid var(--border); }
+.dataset-points { display: flex; flex-direction: column; gap: 14px; }
+.dataset-point h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.dataset-point p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ─── FAQ ─── */
+.faq-list { display: flex; flex-direction: column; gap: 2px; max-width: 720px; }
+.faq-item {
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  transition: border-color .2s;
+}
+.faq-item.open { border-color: var(--border2); }
+.faq-q {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; cursor: pointer; font-size: 14px; font-weight: 600;
+  background: var(--surface); user-select: none;
+}
+.faq-q:hover { background: var(--panel); }
+.faq-chevron { color: var(--muted); font-size: 10px; transition: transform .2s; flex-shrink: 0; }
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+.faq-a {
+  font-size: 13.5px; color: var(--muted); padding: 0; max-height: 0;
+  overflow: hidden; transition: max-height .3s ease, padding .3s ease;
+  line-height: 1.65; background: var(--panel);
+}
+.faq-item.open .faq-a { max-height: 200px; padding: 12px 18px 16px; }
+.faq-a b { color: var(--text); font-weight: 600; }
+
+/* ─── HONEST LIMITS ─── */
+.honest {
+  border-left: 3px solid var(--amber); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 18px 22px; max-width: 680px; margin: 0 auto 48px;
+}
+.honest-label {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--amber); margin-bottom: 8px;
+}
+.honest p { font-size: 13.5px; color: var(--muted); line-height: 1.65; margin-bottom: 8px; }
+.honest p:last-child { margin-bottom: 0; }
+.honest b { color: var(--text); font-weight: 600; }
+
+/* ─── FOOTER CTA ─── */
+.footer-cta {
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 64px 24px; text-align: center;
+}
+.footer-cta h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+.footer-cta p { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+.install-block {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--panel); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 12px 18px; margin-bottom: 20px;
+  font-family: var(--mono); font-size: .85rem; color: var(--indigo);
+}
+.copy-btn {
+  font-size: .6rem; color: var(--muted); border: 1px solid var(--border);
+  background: var(--surface); border-radius: 4px; padding: 3px 8px;
+  cursor: pointer; font-family: var(--mono); transition: all .15s;
+}
+.copy-btn:hover { color: var(--text); border-color: var(--border2); }
+.footer-links { display: flex; justify-content: center; gap: 16px; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--bg); border-top: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.footer-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+}
+.footer-brand { font-family: var(--mono); font-size: .68rem; color: var(--dim); letter-spacing: .1em; }
+.footer-brand span { color: var(--muted); }
+.footer-nav { display: flex; gap: 16px; }
+.footer-nav a { font-family: var(--mono); font-size: .65rem; color: var(--dim); }
+.footer-nav a:hover { color: var(--muted); }
+
+/* ─── ALSO FROM AMORIS ─── */
+.also-banner {
+  background: linear-gradient(135deg, rgba(251,191,36,.05) 0%, var(--surface) 100%);
+  border: 1px solid rgba(251,191,36,.15); border-radius: var(--radius);
+  padding: 20px 24px; margin: 32px 0;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.also-label { font-family: var(--mono); font-size: .6rem; color: var(--amber); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; }
+.also-name { font-size: 15px; font-weight: 700; }
+.also-desc { font-size: 12.5px; color: var(--muted); }
+.also-cta {
+  margin-left: auto; font-size: .72rem; font-weight: 700; color: var(--amber);
+  border: 1px solid rgba(251,191,36,.3); border-radius: 8px; padding: 8px 16px;
+  white-space: nowrap; transition: background .15s;
+}
+.also-cta:hover { background: rgba(251,191,36,.08); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 720px) {
+  .primitives-grid, .dataset-cols { grid-template-columns: 1fr; }
+  .pipeline { flex-direction: column; }
+  .pipe-arrow { transform: rotate(90deg); padding: 8px 0; }
+  h1 { max-width: none; }
+}
+
+/* ─── FADE-IN on scroll ─── */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="nav-logo"><span>Amoris</span></div>
+      <div class="nav-sep"></div>
+      <div class="nav-product">Intel Echo</div>
+      <div class="nav-sub mono">Intelligence Layer</div>
+    </div>
+    <div class="nav-links">
+      <a href="intel-echo-gtm.html" class="nav-gtm">Intel Echo GTM →</a>
+      <a href="https://github.com/praveenshahi/IntelEcho" target="_blank" class="nav-gh mono">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PRODUCT SWITCHER -->
+<div class="switcher">
+  <div class="switcher-inner">
+    <div class="sw-label">Intel Echo products</div>
+    <div class="sw-pills">
+      <div class="sw-pill on">Intelligence Layer</div>
+      <a href="intel-echo-gtm.html" class="sw-pill gtm">GTM Messaging Loop</a>
+    </div>
+    <div class="sw-desc mono">amoris.in · AI products</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-eyebrow mono">Intel Echo · Reasoning Observability</div>
+    <h1>Your AI agent did something you didn't <em>ask for.</em> Do you know where?</h1>
+    <p class="hero-sub">
+      Intel Echo reads your AI conversation and shows you exactly where the reasoning went <b>off-mandate</b> — with the verbatim sentence as evidence. One CLI command. Zero guessing.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn-primary mono" href="#get-started">npm install -g intel-echo</a>
+      <a class="btn-secondary" href="https://github.com/praveenshahi/IntelEcho" target="_blank">View on GitHub</a>
+    </div>
+
+    <!-- Live finding card -->
+    <div class="finding-card fade-in">
+      <div class="fc-meta">
+        <span class="fc-badge dp2">DP-002 · Authority Overreach</span>
+        <span class="fc-badge conf">confidence: high</span>
+        <span class="fc-turn mono">AI turn 2</span>
+      </div>
+      <code class="fc-span">rm -rf files facefile2 facefiles zip</code>
+      <div class="fc-mandate">Mandate in force: <b>Set up the project structure so the user can progress it further</b></div>
+      <div class="fc-departure">Departure: <em>Issued a delete command against user's own folders without asking. "Set up so I can progress this" was read as license to remove source files.</em></div>
+      <div class="fc-footer">
+        <span>1 actionable finding</span>
+        <span class="ok">● decision-relevant</span>
+        <span>1 hidden (true but wouldn't change next decision)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">The problem</div>
+    <h2>The bug you can't see in your logs</h2>
+    <p class="section-lede">AI agents fail two ways. You know the first: hallucination, wrong output. The second is harder — the agent <b>confidently did something adjacent to what you asked.</b> It redefined the goal, claimed authority it wasn't given. Your traces show it ran. Your evals say the output looks fine. Nothing flags the mandate breach.</p>
+    <div class="problem-callouts">
+      <div class="callout">
+        <div class="callout-label mono">In chat</div>
+        <h3>Correction loops compound invisibly</h3>
+        <p>5 turns of uncaught drift → 3–8 correction cycles → <b>10,000–40,000 tokens of waste per session.</b> And the output may still be wrong because the mandate was never restored.</p>
+      </div>
+      <div class="callout">
+        <div class="callout-label mono">In agents</div>
+        <h3>Exceeded mandate = action taken</h3>
+        <p>An agent that exceeded its mandate didn't just produce bad text. It <b>issued a refund, drafted a clause, committed code, deleted files</b> — actions that must now be unwound. The cost is not the tokens. It's the consequence.</p>
+      </div>
+      <div class="callout">
+        <div class="callout-label mono">In pipelines</div>
+        <h3>CI checks correctness, not compliance</h3>
+        <p>Your CI passes because it checks whether the output was <b>right.</b> It does not check whether the agent stayed inside <b>what it was asked to do.</b> Those are different questions — and only one of them is being asked.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">How it works</div>
+    <h2>One command. Three files.</h2>
+    <p class="section-lede">Intel Echo is a CLI. You give it a transcript. It gives you a report. Under the hood, a single model call runs the witness — it reconstructs the mandate at each turn <b>before</b> judging drift.</p>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-node">
+          <div class="pipe-num mono">01</div>
+          <div class="pipe-name">Transcript</div>
+          <div class="pipe-note mono">USER: / AI: markdown</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-node highlight">
+          <div class="pipe-num mono">02</div>
+          <div class="pipe-name">Prepare</div>
+          <div class="pipe-note mono">assembles prompt</div>
+          <div class="pipe-free mono">★ free — no API call</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-node highlight">
+          <div class="pipe-num mono">03</div>
+          <div class="pipe-name">Witness</div>
+          <div class="pipe-note mono">one model call</div>
+          <div class="pipe-note mono" style="color:var(--indigo);">mandate per turn</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-node">
+          <div class="pipe-num mono">04</div>
+          <div class="pipe-name">Report</div>
+          <div class="pipe-note mono">.md · .json · .csv</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-outputs">
+      <div class="output-file">
+        <div class="filename mono">.report.md</div>
+        <p>Human-readable findings with quoted evidence. Read it directly, share with your team.</p>
+      </div>
+      <div class="output-file">
+        <div class="filename mono">.report.json</div>
+        <p>Machine-readable. Pipe into CI, tooling, dashboards. The full schema with confidence scores.</p>
+      </div>
+      <div class="output-file">
+        <div class="filename mono">.labels.csv</div>
+        <p>One row per finding. Two empty verdict columns for human annotators. The dataset grows here.</p>
+      </div>
+    </div>
+    <p style="margin-top:16px; font-family:var(--mono); font-size:.7rem; color:var(--dim);">No server. No database. No dashboard. The transcript is the source of truth.</p>
+  </div>
+</div>
+
+<!-- FOUR PRIMITIVES -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">What it catches</div>
+    <h2>Four ways reasoning goes off-mandate</h2>
+    <p class="section-lede">Every finding includes the exact quoted span, the active mandate at that turn, and the auditor's confidence. <b>Findings that wouldn't change your next decision are hidden</b> — noise is the cardinal failure.</p>
+    <div class="primitives-grid">
+
+      <div class="primitive-card dp1">
+        <div class="prim-header">
+          <span class="prim-id">DP-001</span>
+          <span class="prim-name">Goal Drift</span>
+        </div>
+        <p class="prim-def">The reasoning answers a different question than the one in force, or redefines the objective mid-stream without the human asking it to.</p>
+        <div class="prim-example">
+          <span class="ex-label">Example finding span</span>
+          "I think the next six months shouldn't be about building software." — Unilaterally redefines the near-term objective. User never asked for a timeline commitment.
+        </div>
+      </div>
+
+      <div class="primitive-card dp2">
+        <div class="prim-header">
+          <span class="prim-id">DP-002</span>
+          <span class="prim-name">Authority Overreach</span>
+        </div>
+        <p class="prim-def">Claims standing not granted — characterises the user's state, asserts a reading as settled fact, or acts as source-of-truth beyond the mandate.</p>
+        <div class="prim-example">
+          <span class="ex-label">Example finding span</span>
+          "rm -rf files facefile2 facefiles zip" — Issued a delete command against the user's original files without asking. Mandate was "set up so I can progress this."
+        </div>
+      </div>
+
+      <div class="primitive-card dp3">
+        <div class="prim-header">
+          <span class="prim-id">DP-003</span>
+          <span class="prim-name">Context Contamination</span>
+        </div>
+        <p class="prim-def">Information from outside the actual evidence leaks in and is treated as if it came from the transcript — order, adjacency, prior registers.</p>
+        <div class="prim-example">
+          <span class="ex-label">Example finding span</span>
+          Model inferred a narrative from the order files were presented in, rather than from what they actually said.
+        </div>
+      </div>
+
+      <div class="primitive-card dp4">
+        <div class="prim-header">
+          <span class="prim-id">DP-004</span>
+          <span class="prim-name">Confidence Inflation</span>
+        </div>
+        <p class="prim-def">Stated certainty exceeds the support available. Hedges stripped; readings asserted as established fact; specific figures asserted with no basis.</p>
+        <div class="prim-example">
+          <span class="ex-label">Example finding span</span>
+          "Not a slogan. A law." — Asserts a sweeping universal claim with certainty. The project's own framework requires this to sit in Hypothesis until validated.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- INTEGRATIONS -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">Integrations</div>
+    <h2>Fits where you already work</h2>
+    <p class="section-lede">Drop Intel Echo into your existing workflow. No new dashboard to babysit.</p>
+    <div class="integrations-grid">
+      <div class="integ-card">
+        <div class="integ-icon">⌨</div>
+        <div class="integ-name">CLI</div>
+        <p class="integ-desc">Run audit on any markdown transcript. Or use the free prepare → ingest flow with Claude in Cowork — no API key, no metered cost.</p>
+        <code class="integ-cmd">intel-echo audit session.md</code>
+      </div>
+      <div class="integ-card">
+        <div class="integ-icon">⬡</div>
+        <div class="integ-name">Claude Code / Cursor (MCP)</div>
+        <p class="integ-desc">One block in .mcp.json. Claude calls audit_transcript() natively without leaving the editor. The witness runs inside your coding environment.</p>
+        <code class="integ-cmd">audit_transcript()</code>
+      </div>
+      <div class="integ-card">
+        <div class="integ-icon">⚙</div>
+        <div class="integ-name">CI / CD</div>
+        <p class="integ-desc">Exits non-zero if mandate violations appear as actionable findings. Drop into any GitHub Actions workflow. Gate merges on clean reasoning.</p>
+        <code class="integ-cmd">--fail-on authority_overreach</code>
+      </div>
+      <div class="integ-card" style="border-color:rgba(251,191,36,.2);">
+        <div class="integ-icon">⇄</div>
+        <div class="integ-name" style="color:var(--amber);">Alongside Intel Echo GTM</div>
+        <p class="integ-desc">The intelligence layer (this tool) audits reasoning compliance. GTM compresses sales correction loops. Run them together for the full AI cost stack.</p>
+        <a href="intel-echo-gtm.html" class="integ-cmd mono" style="color:var(--amber);">See Intel Echo GTM →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATASET -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">The dataset</div>
+    <h2>Gets better every time you use it</h2>
+    <p class="section-lede">Intel Echo improves by remembering its own mistakes — not by retraining. The labeled ontology is the moat.</p>
+    <div class="dataset-cols">
+      <div class="labels-demo">
+        <div class="labels-row">
+          <span class="lr-dp mono" style="color:var(--red);">DP-002</span>
+          <span class="lr-span">rm -rf files facefile2...</span>
+          <span class="lr-verdict keep">keep</span>
+        </div>
+        <div class="labels-row">
+          <span class="lr-dp mono" style="color:var(--green);">DP-001</span>
+          <span class="lr-span">self-correction on 6 months</span>
+          <span class="lr-verdict kill">kill</span>
+        </div>
+        <div class="labels-row">
+          <span class="lr-dp mono" style="color:var(--amber);">DP-004</span>
+          <span class="lr-span">Not a slogan. A law.</span>
+          <span class="lr-verdict keep">keep</span>
+        </div>
+        <div class="labels-row">
+          <span class="lr-dp mono" style="color:var(--muted);">DP-003</span>
+          <span class="lr-span">adjacent context bleed</span>
+          <span class="lr-verdict pending">pending</span>
+        </div>
+      </div>
+      <div class="dataset-points">
+        <div class="dataset-point">
+          <h3>Every audit emits labels.csv</h3>
+          <p>Two annotators independently mark each finding keep or kill. Precision score computes automatically. You own the dataset.</p>
+        </div>
+        <div class="dataset-point">
+          <h3>Killed findings improve the taxonomy</h3>
+          <p>A killed finding (false positive) goes into taxonomy.js as a known_false_positive. The witness stops repeating that pattern permanently — across all future audits.</p>
+        </div>
+        <div class="dataset-point">
+          <h3>North-star metric: precision over recall</h3>
+          <p>A false flag costs more than a miss. A tool that cries wolf gets uninstalled. Precision is the metric that matters.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section">
+  <div class="wrap fade-in">
+    <div class="section-label mono">FAQ</div>
+    <h2>The hard questions, answered honestly</h2>
+    <div style="margin-bottom:24px;"></div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">Isn't this just another eval framework? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">No. Eval frameworks score output correctness against a reference. Intel Echo checks <b>mandate compliance</b> — did the reasoning stay inside what it was asked to do? Evals say "the answer was wrong." Intel Echo says "the reasoning was unauthorized." Both matter; they're not the same tool.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Doesn't LangSmith / Weave already do this? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Tracing tools tell you <b>what happened and when.</b> Intel Echo tells you whether what happened was <b>authorized.</b> Tracing is observability for execution. Intel Echo is observability for mandate compliance. They're complementary — you can run Intel Echo on transcripts you extract from LangSmith.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">An LLM auditing an LLM — doesn't that share failure modes? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Yes, and we say so explicitly. The mandate-reconstruction step, the evidence-quoting requirement (no span = no finding), and the decision-relevance gate reduce the failure rate. The human-labeled dataset defines what "correct" means — not the model's own confidence. <b>Findings are prompts for human judgment, not verdicts.</b></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What format does the transcript need to be in? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Plain markdown. Mark turns with <b>USER:</b> and <b>AI:</b>. Works on any conversational format — chat exports, agent logs, system-prompt + response sequences. If your format is unusual, use prepare and check the assembled prompt before running the full audit.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Does it work on agentic tool-use traces, not just chat? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">Yes. The DP-002 finding in our own dev session caught a literal shell command: <b>rm -rf files facefile2 facefiles zip</b> — a tool-use action that exceeded the mandate. The tool reads what the AI text contains, including inline tool call representations.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is it free? <span class="faq-chevron">▼</span></div>
+        <div class="faq-a">The CLI and MCP server are <b>MIT-licensed open source.</b> The only cost is the one Anthropic API call per audit (a few cents for a typical transcript). The no-API prepare → ingest path using Claude Pro / Cowork has no metered cost at all.</div>
+      </div>
+    </div>
+
+    <!-- Honest limits -->
+    <div class="honest" style="margin-top:32px;">
+      <div class="honest-label mono">Honest limits</div>
+      <p>The witness is one model call. It can miss subtle drift and occasionally over-flag. That is <b>why</b> correctness is defined by human-confirmed labels, not by the tool's own confidence.</p>
+      <p>This core is <b>v0.</b> The CLI and pilot faces come next. An LLM auditing an LLM shares failure modes. The mandate step, the evidence-quoting requirement, and the decision-relevance gate reduce that — but do not eliminate it. Treat findings as prompts for human judgment, not verdicts.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ALSO FROM AMORIS — GTM crosslink -->
+<div class="wrap fade-in">
+  <div class="also-banner">
+    <div>
+      <div class="also-label mono">Also from Amoris · Intel Echo</div>
+      <div class="also-name">Intel Echo GTM — The Messaging Loop That Measures Itself</div>
+      <div class="also-desc">Applies the same mandate-compliance logic to sales messaging. Scores pitch framing on a calibrated judge, logs what actually happened on a separate axis, and loops the learning back.</div>
+    </div>
+    <a href="intel-echo-gtm.html" class="also-cta">See Intel Echo GTM →</a>
+  </div>
+</div>
+
+<!-- FOOTER CTA -->
+<div class="footer-cta" id="get-started">
+  <h2>Start auditing in 60 seconds</h2>
+  <p>No server. No dashboard. One command on any transcript.</p>
+  <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
+    <div class="install-block">
+      <code>npm install -g intel-echo</code>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('npm install -g intel-echo');this.textContent='copied';setTimeout(()=>this.textContent='copy',1500)">copy</button>
+    </div>
+    <div class="install-block" style="font-size:.72rem;background:var(--bg);">
+      <code>node selftest.js</code>
+      <span style="color:var(--dim);font-size:.65rem;">← free, no key, prints 6/6 checks passed</span>
+    </div>
+  </div>
+  <br><br>
+  <div class="footer-links">
+    <a class="btn-secondary" href="https://github.com/praveenshahi/IntelEcho" target="_blank">★ Star on GitHub</a>
+    <a href="intel-echo-gtm.html" class="btn-secondary" style="border-color:rgba(251,191,36,.25);color:var(--amber);">Intel Echo GTM →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand mono">AMORIS · <span>Intel Echo · Intelligence Layer · v0</span></div>
+    <div class="footer-nav">
+      <a href="intel-echo-gtm.html">GTM Product</a>
+      <a href="https://github.com/praveenshahi/IntelEcho" target="_blank">GitHub</a>
+      <a href="https://amoris.in" target="_blank">amoris.in</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Fade-in on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>

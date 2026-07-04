@@ -14,8 +14,13 @@ OmniRoute-main.zip
 # IDE / tooling
 .obsidian/
 .claude/
-*.html
 *.png
+
+# HTML at root only (demo files, not tracked)
+/*.html
+
+# Landing pages are intentionally tracked
+!landing/
 
 # npm pack artifact
 *.tgz
